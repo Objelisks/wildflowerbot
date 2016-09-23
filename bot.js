@@ -144,8 +144,8 @@ if(testMode) {
         });
     }
 } else {
-    let Twit = require('twit');
-    let twitter = new Twit(JSON.parse(fs.readFileSync('./creds.json')));
+    let Twitter = require('./twitter/twitter.js');
+    let twitter = new Twitter(JSON.parse(fs.readFileSync('./creds.json')));
     
     // high quality nlp
     let who = ['you see', "you've found", 'you come across'];
@@ -155,43 +155,44 @@ if(testMode) {
     
     let tweetCanvas = () => {
         return new Promise((resolve, reject) => {
-            saveCanvas('tweet').then((path) => {
-                    
-                twitter.postMediaChunked('media/upload', { file_path: path }, (err, data, res) => {
+            let buf = canvas.toBuffer();
+        
+            twitter.post('media/upload', { media: buf }, (err, data, res) => {
+                if(err) return reject(err);
+                console.log('media uploaded');
+                
+                let mediaId = data.media_id_string;
+                
+                let altText = [pickRandom(who), pickRandom(where), pickRandom(what), pickRandom(why)].join(' ');
+                let params = {
+                  media_id: mediaId,
+                  alt_text: { text: altText }
+                };
+                
+                twitter.post('media/metadata/create', params, (err, data, res) => {
                     if(err) return reject(err);
-                    console.log('media uploaded');
+                    console.log('metadata uploaded');
                     
-                    let mediaId = data.media_id_string;
-                    let altText = [pickRandom(who), pickRandom(where), pickRandom(what), pickRandom(why)].join(' ');
-                    let params = {
-                      media_id: mediaId,
-                      alt_text: { text: altText }
+                    params = {
+                        status: '',
+                        media_ids: mediaId
                     };
-                    
-                    twitter.post('media/metadata/create', params, (err, data, res) => {
+                    twitter.post('statuses/update', params, (err, data, res) => {
                         if(err) return reject(err);
-                        console.log('metadata uploaded');
-                        
-                        let params = {
-                            status: '',
-                            mediaIds: [mediaId]
-                        };
-                        twitter.post('statuses/update', params, (err, data, res) => {
-                            if(err) return reject(err);
-                            console.log('successfully tweeted');
-                            resolve();
-                        });
+                        console.log('successfully tweeted');
+                        resolve();
                     });
-                    
                 });
+                
             });
         });
     };
     
-    console.log('renderering tweet');
-    
-    animate();
-    render();
-    tweetCanvas()
-        .catch((err) => console.error(err));
+    let doTweeting = () => {
+        animate();
+        render();
+        tweetCanvas().catch((err) => console.log(err));
+    };
+    setInterval(doTweeting, 60*60*1000);
+    doTweeting();
 }
