@@ -1,9 +1,5 @@
 /* global THREE, Noise */
 
-/*
-making projects and learning things i want to use in a job
-*/
-
 let THREE = require('./three.js');
 let Noise = require('noisejs').Noise;
 let noisejs = new Noise();
@@ -81,7 +77,7 @@ let placement = {
     t = Math.abs(t) % 100;
     return {
       x: s,
-      y: noisejs.perlin2(s/100, t/100) + Math.min(0, noisejs.perlin2(-s/100, -t/100)),
+      y: noisejs.perlin2(s/100, t/100) - Math.max(0, noisejs.perlin2(-s/100, -t/100)),
       z: t
     }
   },
@@ -128,59 +124,7 @@ flowers.generate = function({camera, seed = 0, color, density = 1.0, scale = 1, 
     }
   }
   
-  //alternate mode from 0 to 100 but small wise
-  
   return group;
 }
-
-// destructured default function parameters go!
-flowers.generateBlueOnes = function({camera, seed = 0, scale = 1} = {}) {
-  noisejs.seed(seed);
-  
-  let group = new THREE.Object3D();
-  
-  let geo = new THREE.CircleBufferGeometry(1, 8);
-  //geo.rotateX(-Math.PI/2);
-  
-  // adjust vertices
-  for(let x=0; x<100; x+=2) {
-    for(let y=0; y<100; y+=2) {
-      let color = new THREE.Color(0.4-Math.random()*0.2,0.5-Math.random()*0.2,0.5+Math.random()*0.5);
-      let mesh = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({color: color }));
-      mesh.position.x = x + Math.random()*2-1;
-      mesh.position.y = noisejs.perlin2(x/100, y/100)*scale;
-      mesh.position.z = y + Math.random()*2-1;
-      mesh.lookAt(camera.position);
-      group.add(mesh);
-    }
-  }
-  
-  return group;
-};
-
-flowers.generateRedOnes = function({camera, seed = 0, scale = 1} = {}) {
-  noisejs.seed(seed);
-  
-  let group = new THREE.Object3D();
-  
-  let geo = new THREE.CircleBufferGeometry(0.5, 4, Math.PI*0.25, Math.PI*0.5);
-  //geo.rotateX(-Math.PI/2);
-  
-  // adjust vertices
-  for(let x=0; x<100; x+=4) {
-    for(let y=0; y<100; y+=4) {
-      let color = new THREE.Color(0.4+Math.random()*0.6,0.5-Math.random()*0.2,0.5-Math.random()*0.5);
-      let mesh = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({color: color }));
-      mesh.position.x = x + Math.random()*2-1;
-      mesh.scale.y = Math.random()*8+2;
-      mesh.position.y = noisejs.perlin2(x/100, y/100)*scale;
-      mesh.position.z = y + Math.random()*2-1;
-      mesh.lookAt(camera.position);
-      group.add(mesh);
-    }
-  }
-  
-  return group;
-};
 
 module.exports = flowers;

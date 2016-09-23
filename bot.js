@@ -6,7 +6,6 @@ let fs = require('fs');
 
 let width = 360, height = 360;
 let scene, camera, renderer;
-
 let gradient;
 
 let canvas = new Canvas(width, height);
@@ -16,14 +15,13 @@ let terrain = require('./terrain.js');
 let plants = require('./flowers.js');
 let noisejs = new (require('noisejs').Noise)();
 
-/*
-gradient in the bg
-perlin density
+/* TODO
 parametric flower generator
 trees
-secret orbs
+more secret things (a house, an animal)
 */
-    
+
+// for bg gradient
 let palette = [
   '#DAB690',
   '#9AD47D',
@@ -65,7 +63,7 @@ function animate() {
     let seed = Math.random();
     noisejs.seed(seed);
     
-    let scale = 50;
+    let scale = Math.random()*50+20;
     
     camera.position.y = noisejs.perlin2(0.9, 0.9)*scale + 10 + 20*Math.random();
     camera.lookAt(new THREE.Vector3(50,noisejs.perlin2(0.5, 0.5)*scale,50));
@@ -82,38 +80,28 @@ function animate() {
         });
         scene.add(flowers);
     }
-    /*
-    let flowers = plants.generate({
-        camera: camera,
-        seed: seed,
-        density: 0.5,
-        scale: scale,
-        colorType: 'rainbow', buildType: 'round', placeType: 'grouped'});
-    let tall = plants.generate({
-        camera: camera,
-        seed: seed,
-        density: 0.5,
-        scale: scale,
-        colorType: 'rainbow', buildType: 'reed', placeType: 'perlin'});
-    let scattered = plants.generate({
-        camera: camera,
-        seed: seed,
-        density: 0.2,
-        scale: scale,
-        colorType: 'pastel', buildType: 'daisy', placeType: 'field'});
-    let grassShadow = plants.generate({
-        camera: camera,
-        seed: seed,
-        density: 0.25,
-        scale: scale,
-        color: '#316B24',
-        colorType: 'rainbow', buildType: 'grassShadow', placeType: 'field'});
     
-    scene.add(flowers);
-    scene.add(tall);
-    scene.add(scattered);
-    scene.add(grassShadow);
-    */
+    // secret zone
+    if(Math.random() < 0.01) {// one in one hundred
+        let orb = new THREE.Mesh(new THREE.SphereBufferGeometry(4, 16, 16), new THREE.MeshBasicMaterial({color: '#000'}));
+        orb.position.x = Math.random() * 80 + 10;
+        orb.position.z = Math.random() * 80 + 10;
+        orb.position.y = noisejs.perlin2(orb.position.x/100, orb.position.z/100)*scale + 8;
+        scene.add(orb);
+    }
+    if(Math.random() < 0.001) {// one in one thousand
+        let col = new THREE.Color().setHSL(0, 0.6, 0.6);
+        for(let i=0; i<8; i++) {
+            let ringIndex = 50 + i*10;
+            let ring = new THREE.Mesh(new THREE.RingBufferGeometry(ringIndex, ringIndex+10, 16, 1), new THREE.MeshBasicMaterial({color: col}));
+            ring.position.x = -100;
+            ring.position.z = -100;
+            ring.position.y = 0;
+            ring.lookAt(camera.position);
+            scene.add(ring);
+            col = col.offsetHSL(1/8, 0, 0);
+        }
+    }
 }
 
 function render() {
@@ -134,6 +122,7 @@ function saveCanvas(name) {
         
         stream.on('end', function(){
           console.log('saved png', name);
+          out.end();
           resolve();
         });
     });
