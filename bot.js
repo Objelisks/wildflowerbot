@@ -4,7 +4,7 @@ let THREE = require('./three.js');
 let Canvas = require('canvas');
 let fs = require('fs');
 
-let width = 360, height = 360;
+let width = 1500, height = 500;
 let scene, camera, renderer;
 let gradient;
 
@@ -48,7 +48,7 @@ function init() {
     renderer.autoClear = false;
     renderer.setSize( width, height );
 
-    camera = new THREE.PerspectiveCamera( 75, width / height, 0.1, 1000);
+    camera = new THREE.PerspectiveCamera( 45, width / height, 0.1, 1000);
     camera.position.x = 90;
     camera.position.y = 40;
     camera.position.z = 90;
@@ -128,17 +128,65 @@ function saveCanvas(name) {
     });
 }
 
+// main
+let testMode = process.argv.indexOf('--test') > 0;
+
 init();
 
-let renderAndSave = (i) => {
-    return () => {
-        animate();
-        render();
-        return saveCanvas(i);
+if(testMode) {
+    let p = Promise.resolve();
+    for(let i=0; i<1; i++) {
+        p = p.then(() => {
+            animate();
+            render();
+            return saveCanvas(i);
+        });
+    }
+} else {
+    let Twit = require('twit');
+    let twitter = new Twit(JSON.parse(fs.readFileSync('./creds.json')));
+    
+    // high quality nlp
+    let who = ['you see', "you've found", 'you come across'];
+    let where = ['a sunny field', 'some rolling hills'];
+    let what = ['with many flowers', 'full of color'];
+    let why = ['and it makes you happy.', 'and it is peaceful.'];
+    
+    let tweetCanvas = () => {
+        return new Promise((resolve, reject) => {
+            let data = canvas.toBuffer();
+            
+            twitter.post('media/upload', { media: data }, (err, data, res) => {
+                if(err) return reject(err);
+                
+                let mediaId = data.media_id_string;
+                let altText = [pickRandom(who), pickRandom(where), pickRandom(what), pickRandom(why)].join(' ');
+                let params = {
+                  media_id: mediaId,
+                  alt_text: { text: altText }
+                };
+                
+                twitter.post('media/metadata/create', params, (err, data, res) => {
+                    if(err) return reject(err);
+                    
+                    let params = {
+                        status: '',
+                        mediaIds: [mediaId]
+                    };
+                    twitter.post('statuses/update', params, (err, data, res) => {
+                        if(err) return reject(err);
+                        console.log('successfully tweeted');
+                        resolve();
+                    });
+                });
+                
+            });
+        });
     };
-};
-
-let p = Promise.resolve();
-for(let i=0; i<8; i++) {
-    p = p.then(renderAndSave(i));
+    
+    console.log('renderering tweet');
+    
+    animate();
+    render();
+    tweetCanvas();
 }
