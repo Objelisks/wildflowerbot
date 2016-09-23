@@ -4,7 +4,7 @@ let THREE = require('./three.js');
 let Canvas = require('canvas');
 let fs = require('fs');
 
-let width = 1500, height = 500;
+let width = 360, height = 360;
 let scene, camera, renderer;
 let gradient;
 
@@ -48,7 +48,7 @@ function init() {
     renderer.autoClear = false;
     renderer.setSize( width, height );
 
-    camera = new THREE.PerspectiveCamera( 45, width / height, 0.1, 1000);
+    camera = new THREE.PerspectiveCamera( 75, width / height, 0.1, 1000);
     camera.position.x = 90;
     camera.position.y = 40;
     camera.position.z = 90;
