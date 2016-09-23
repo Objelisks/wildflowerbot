@@ -5,7 +5,8 @@
  * @author daoshengmu / http://dsmu.me/
  */
 
-let THREE = require('./three.min.js');
+let Canvas = require('canvas');
+let THREE = require('./three.js');
 
 THREE.SoftwareRenderer = function ( parameters ) {
 
@@ -153,13 +154,24 @@ THREE.SoftwareRenderer = function ( parameters ) {
 
 			blockMaxZ[ i ] = maxZVal;
 			blockFlags[ i ] = ( blockFlags[ i ] & BLOCK_ISCLEAR ) ? BLOCK_ISCLEAR : BLOCK_NEEDCLEAR;
-
 		}
 
+	};
+	
+	this.clearDepth = function() {
+		for ( var i = 0, l = zbuffer.length; i < l; i ++ ) {
+			zbuffer[ i ] = maxZVal;
+		}
+		for ( var i = 0; i < numBlocks; i ++ ) {
+			blockMaxZ[ i ] = maxZVal;
+		}
 	};
 
     // TODO: Check why autoClear can't be false.
 	this.render = function ( scene, camera ) {
+
+		imagedata = context.getImageData( 0, 0, canvasWidth, canvasHeight );
+		data = imagedata.data;
 
 		if ( this.autoClear === true ) this.clear();
 
@@ -1529,13 +1541,14 @@ THREE.SoftwareRenderer.Texture = function() {
 
 		if ( canvas === undefined ) {
 
-			canvas = document.createElement( 'canvas' );
+			//canvas = document.createElement( 'canvas' );
+			canvas = new Canvas(image.width, image.height);
 
 		}
 
 		var size = image.width > image.height ? image.width : image.height;
 		size = THREE.Math.nextPowerOfTwo( size );
-
+/*
 		if ( canvas.width != size || canvas.height != size ) {
 
 			canvas.width = size;
@@ -1548,8 +1561,9 @@ THREE.SoftwareRenderer.Texture = function() {
 		ctx.drawImage( image, 0, 0, size, size );
 
 		var imgData = ctx.getImageData( 0, 0, size, size );
+		*/
 
-		this.data = imgData.data;
+		this.data = image.data;
 		this.width = size;
 		this.height = size;
 		this.srcUrl = image.src;

@@ -4,7 +4,7 @@
  * @author julianwa / https://github.com/julianwa
  */
 
-let THREE = require('./three.min.js');
+let THREE = require('./three.js');
 
 THREE.RenderableObject = function () {
 

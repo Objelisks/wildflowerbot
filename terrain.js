@@ -4,16 +4,14 @@
 making projects and learning things i want to use in a job
 */
 
-let THREE = require('./three.min.js');
+let THREE = require('./three.js');
 let fs = require('fs');
 let Noise = require('noisejs').Noise;
 let noisejs = new Noise();
 
 let terrain = {};
 
-let image = fs.readFileSync('grass_grass_0085_01_s.jpg');
-
-let terrainMaterial = new THREE.MeshLambertMaterial({map: new THREE.TextureLoader().load('grass_grass_0085_01_s.jpg'), color: 0x439934, overdraw: 0.5});
+let terrainMaterial = new THREE.MeshBasicMaterial({color: 0x43a454, overdraw: 0.5});
 //let terrainMaterial = new THREE.MeshNormalMaterial({overdraw: 0.5});
 
 // destructured default function parameters go!
@@ -33,6 +31,7 @@ terrain.generate = function({seed = 0, scale = 1} = {}) {
     }
     
     geo.verticesNeedUpdate = true;
+    geo.computeFaceNormals();
     return new THREE.Mesh(geo, terrainMaterial);
 };
 
