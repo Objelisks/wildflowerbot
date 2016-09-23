@@ -71,7 +71,7 @@ function animate() {
     let ground = terrain.generate({seed: seed, scale: scale});
     scene.add(ground);
     
-    for(let i=0; i<5; i++) {
+    for(let i=0; i<3; i++) {
         let flowers = plants.generate({
            camera: camera,
            seed: seed,
@@ -113,7 +113,8 @@ function render() {
 
 function saveCanvas(name) {
     return new Promise((resolve, reject) => {
-        let out = fs.createWriteStream(`${__dirname}/out/${name}.png`);
+        let path = `${__dirname}/out/${name}.png`;
+        let out = fs.createWriteStream(path);
         let stream = canvas.pngStream();
         
         stream.on('data', function(chunk){
@@ -123,7 +124,7 @@ function saveCanvas(name) {
         stream.on('end', function(){
           console.log('saved png', name);
           out.end();
-          resolve();
+          resolve(path);
         });
     });
 }
@@ -135,7 +136,7 @@ init();
 
 if(testMode) {
     let p = Promise.resolve();
-    for(let i=0; i<1; i++) {
+    for(let i=0; i<8; i++) {
         p = p.then(() => {
             animate();
             render();
@@ -154,32 +155,35 @@ if(testMode) {
     
     let tweetCanvas = () => {
         return new Promise((resolve, reject) => {
-            let data = canvas.toBuffer();
-            
-            twitter.post('media/upload', { media: data }, (err, data, res) => {
-                if(err) return reject(err);
-                
-                let mediaId = data.media_id_string;
-                let altText = [pickRandom(who), pickRandom(where), pickRandom(what), pickRandom(why)].join(' ');
-                let params = {
-                  media_id: mediaId,
-                  alt_text: { text: altText }
-                };
-                
-                twitter.post('media/metadata/create', params, (err, data, res) => {
-                    if(err) return reject(err);
+            saveCanvas('tweet').then((path) => {
                     
+                twitter.postMediaChunked('media/upload', { file_path: path }, (err, data, res) => {
+                    if(err) return reject(err);
+                    console.log('media uploaded');
+                    
+                    let mediaId = data.media_id_string;
+                    let altText = [pickRandom(who), pickRandom(where), pickRandom(what), pickRandom(why)].join(' ');
                     let params = {
-                        status: '',
-                        mediaIds: [mediaId]
+                      media_id: mediaId,
+                      alt_text: { text: altText }
                     };
-                    twitter.post('statuses/update', params, (err, data, res) => {
+                    
+                    twitter.post('media/metadata/create', params, (err, data, res) => {
                         if(err) return reject(err);
-                        console.log('successfully tweeted');
-                        resolve();
+                        console.log('metadata uploaded');
+                        
+                        let params = {
+                            status: '',
+                            mediaIds: [mediaId]
+                        };
+                        twitter.post('statuses/update', params, (err, data, res) => {
+                            if(err) return reject(err);
+                            console.log('successfully tweeted');
+                            resolve();
+                        });
                     });
+                    
                 });
-                
             });
         });
     };
@@ -188,5 +192,6 @@ if(testMode) {
     
     animate();
     render();
-    tweetCanvas();
+    tweetCanvas()
+        .catch((err) => console.error(err));
 }
