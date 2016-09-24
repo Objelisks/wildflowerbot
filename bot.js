@@ -72,13 +72,13 @@ function animate() {
     let ground = terrain.generate({seed: seed, scale: scale});
     scene.add(ground);
     
-    let layers = Math.floor(Math.random()*3) + 2;
+    let layers = Math.floor(Math.random()*2) + 2;
     
     for(let i=0; i<layers; i++) {
         let flowers = plants.generate({
            camera: camera,
            seed: seed,
-           density: Math.random()*0.5+0.1,
+           density: Math.random()*0.4+0.1,
            scale: scale
         });
         scene.add(flowers);
