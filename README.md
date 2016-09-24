@@ -1,5 +1,7 @@
 # Wildflower bot
 
+[@wildflowersbot](https://twitter.com/wildflowersbot)
+
 ![wildflowers example image](https://pbs.twimg.com/media/CtFeWcqVMAA0kF7.jpg:large)
 
 ```
