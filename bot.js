@@ -51,7 +51,7 @@ function init() {
     camera = new THREE.PerspectiveCamera( 60, width / height, 0.1, 1000);
     camera.position.x = 80;
     camera.position.y = 40;
-    camera.position.z = 90;
+    camera.position.z = 80;
 }
 
 function animate() {
@@ -66,7 +66,7 @@ function animate() {
     
     let scale = Math.random()*50+20;
     
-    camera.position.y = noisejs.perlin2(0.8, 0.9)*scale + 10 + 15*Math.random();
+    camera.position.y = noisejs.perlin2(0.8, 0.9)*scale + 10 + 5*Math.random();
     camera.lookAt(new THREE.Vector3(50,noisejs.perlin2(0.5, 0.5)*scale,50));
     
     let ground = terrain.generate({seed: seed, scale: scale});
