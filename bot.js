@@ -196,6 +196,6 @@ if(testMode) {
         render();
         tweetCanvas().catch((err) => console.log(err));
     };
-    setInterval(doTweeting, 60*60*1000);
+    setInterval(doTweeting, 30*60*1000);
     doTweeting();
 }
