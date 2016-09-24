@@ -4,7 +4,7 @@ let THREE = require('./three.js');
 let Canvas = require('canvas');
 let fs = require('fs');
 
-let width = 512, height = 512;
+let width = 1024, height = 512;
 let scene, camera, renderer;
 let gradient;
 
@@ -48,23 +48,13 @@ function init() {
     renderer.autoClear = false;
     renderer.setSize( width, height );
 
-    camera = new THREE.PerspectiveCamera( 45, width / height, 0.1, 1000);
-    camera.position.x = 90;
+    camera = new THREE.PerspectiveCamera( 60, width / height, 0.1, 1000);
+    camera.position.x = 80;
     camera.position.y = 40;
     camera.position.z = 90;
 }
 
 function animate() {
-    
-    width = Math.random() < 0.3 ? 1024 : 512;
-    height = 512;
-    
-    camera.fov = width > 512 ? 45 : 75;
-    
-    canvas.width = width;
-    canvas.height = height;
-    
-    renderer.setSize(width, height);
     
     gradient = ctx.createLinearGradient(0,0,0,height);
     gradient.addColorStop(0, pickRandom(palette));
@@ -76,13 +66,15 @@ function animate() {
     
     let scale = Math.random()*50+20;
     
-    camera.position.y = noisejs.perlin2(0.9, 0.9)*scale + 10 + 15*Math.random();
+    camera.position.y = noisejs.perlin2(0.8, 0.9)*scale + 10 + 15*Math.random();
     camera.lookAt(new THREE.Vector3(50,noisejs.perlin2(0.5, 0.5)*scale,50));
     
     let ground = terrain.generate({seed: seed, scale: scale});
     scene.add(ground);
     
-    for(let i=0; i<3; i++) {
+    let layers = Math.floor(Math.random()*3) + 2;
+    
+    for(let i=0; i<layers; i++) {
         let flowers = plants.generate({
            camera: camera,
            seed: seed,
