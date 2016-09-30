@@ -13,6 +13,7 @@ let ctx = canvas.getContext('2d');
 
 let terrain = require('./terrain.js');
 let plants = require('./flowers.js');
+let rarefinds = require('./rarefinds.js');
 let noisejs = new (require('noisejs').Noise)();
 
 /* TODO
@@ -55,7 +56,6 @@ function init() {
 }
 
 function animate() {
-    
     gradient = ctx.createLinearGradient(0,0,0,height);
     gradient.addColorStop(0, pickRandom(palette));
     gradient.addColorStop(1, "#C6CF6E");
@@ -72,39 +72,21 @@ function animate() {
     let ground = terrain.generate({seed: seed, scale: scale});
     scene.add(ground);
     
+    let generatorParams = {
+        camera: camera,
+        seed: seed,
+        scale: scale
+    };
+    
     let layers = Math.floor(Math.random()*4) + 2;
     
     for(let i=0; i<layers; i++) {
-        let flowers = plants.generate({
-           camera: camera,
-           seed: seed,
-           density: Math.random()*0.5+0.1,
-           scale: scale
-        });
+        let flowers = plants.generate(Object.assign({}, generatorParams, {density: Math.random()*0.5+0.1}));
         scene.add(flowers);
     }
     
-    // secret zone
-    if(Math.random() < 0.01) {// one in one hundred
-        let orb = new THREE.Mesh(new THREE.SphereBufferGeometry(4, 16, 16), new THREE.MeshBasicMaterial({color: '#000'}));
-        orb.position.x = Math.random() * 80 + 10;
-        orb.position.z = Math.random() * 80 + 10;
-        orb.position.y = noisejs.perlin2(orb.position.x/100, orb.position.z/100)*scale + 8;
-        scene.add(orb);
-    }
-    if(Math.random() < 0.001) {// one in one thousand
-        let col = new THREE.Color().setHSL(0, 0.6, 0.6);
-        for(let i=0; i<8; i++) {
-            let ringIndex = 50 + i*10;
-            let ring = new THREE.Mesh(new THREE.RingBufferGeometry(ringIndex, ringIndex+10, 16, 1), new THREE.MeshBasicMaterial({color: col}));
-            ring.position.x = -100;
-            ring.position.z = -100;
-            ring.position.y = 0;
-            ring.lookAt(camera.position);
-            scene.add(ring);
-            col = col.offsetHSL(1/8, 0, 0);
-        }
-    }
+    let finds = rarefinds.generateRarefinds(generatorParams);
+    finds.forEach((find) => scene.add(find));
 }
 
 function render() {
