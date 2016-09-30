@@ -37,7 +37,7 @@ let finds = [
     },
     {
         // fairy ring
-        chance: 1.0,
+        chance: 0.02,
         generate: ({camera, seed, scale}) => {
             noisejs.seed(seed);
             let group = new THREE.Object3D();
