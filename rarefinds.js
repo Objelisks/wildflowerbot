@@ -74,6 +74,7 @@ let finds = [
             let group = new THREE.Object3D();
             let punkinMat = new THREE.MeshBasicMaterial({color: '#C17A44'});
             let punkinFaceMat = new THREE.MeshBasicMaterial({color: '#000000'});
+            let punkinStemMat = new THREE.MeshBasicMaterial({color: '#9CC85B'});
             for(let i=0; i<8; i++) {
                 let ob = new THREE.Object3D();
                 let punkin = new THREE.TorusBufferGeometry(3, 8, 12, 8);
@@ -85,10 +86,13 @@ let finds = [
                 let face3 = new THREE.TorusBufferGeometry(3, 2, 4, 6, 3);
                 face3.rotateX(Math.PI/2);
                 face3.translate(0.19, -2.92, 5.96);
+                let stem = new THREE.OctahedronGeometry(2);
+                stem.translate(0, 7.7, 0);
                 ob.add(new THREE.Mesh(punkin, punkinMat));
                 ob.add(new THREE.Mesh(face1, punkinFaceMat));
                 ob.add(new THREE.Mesh(face2, punkinFaceMat));
                 ob.add(new THREE.Mesh(face3, punkinFaceMat));
+                ob.add(new THREE.Mesh(stem, punkinStemMat));
                 ob.scale.set(0.2, 0.2, 0.2);
                 ob.rotateY(Math.random()*Math.PI*2);
                 ob.position.x = Math.random() * 80 + 10;
