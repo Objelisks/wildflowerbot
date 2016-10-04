@@ -68,7 +68,7 @@ let finds = [
     },
     {
         // punkin
-        chance: new Date().getMonth() === OCTOBER ? 1.0 : 0.001,
+        chance: new Date().getMonth() === OCTOBER ? 0.3 : 0.001,
         generate: ({camera, seed, scale}) => {
             noisejs.seed(seed);
             let group = new THREE.Object3D();
