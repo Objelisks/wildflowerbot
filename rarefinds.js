@@ -2,6 +2,7 @@ let THREE = require('./three.js');
 let noisejs = new (require('noisejs').Noise)();
 
 let rarefinds = {};
+let OCTOBER = 9; // spoopy
 
 let finds = [
     {
@@ -62,6 +63,39 @@ let finds = [
                 group.add(stem);
             }
             
+            return group;
+        }
+    },
+    {
+        // punkin
+        chance: new Date().getMonth() === OCTOBER ? 1.0 : 0.001,
+        generate: ({camera, seed, scale}) => {
+            noisejs.seed(seed);
+            let group = new THREE.Object3D();
+            let punkinMat = new THREE.MeshBasicMaterial({color: '#C17A44'});
+            let punkinFaceMat = new THREE.MeshBasicMaterial({color: '#000000'});
+            for(let i=0; i<8; i++) {
+                let ob = new THREE.Object3D();
+                let punkin = new THREE.TorusBufferGeometry(3, 8, 12, 8);
+                punkin.rotateX(Math.PI/2);
+                let face1 = new THREE.OctahedronGeometry(2);
+                face1.translate(-2.9, 2.71, 8.88);
+                let face2 = new THREE.OctahedronGeometry(2);
+                face2.translate(4.05, 2.62, 8.39);
+                let face3 = new THREE.TorusBufferGeometry(3, 2, 4, 6, 3);
+                face3.rotateX(Math.PI/2);
+                face3.translate(0.19, -2.92, 5.96);
+                ob.add(new THREE.Mesh(punkin, punkinMat));
+                ob.add(new THREE.Mesh(face1, punkinFaceMat));
+                ob.add(new THREE.Mesh(face2, punkinFaceMat));
+                ob.add(new THREE.Mesh(face3, punkinFaceMat));
+                ob.scale.set(0.2, 0.2, 0.2);
+                ob.rotateY(Math.random()*Math.PI*2);
+                ob.position.x = Math.random() * 80 + 10;
+                ob.position.z = Math.random() * 80 + 10;
+                ob.position.y = noisejs.perlin2(ob.position.x/100, ob.position.z/100)*scale + 2;
+                group.add(ob);
+            }
             return group;
         }
     }];
