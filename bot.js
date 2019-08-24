@@ -1,6 +1,7 @@
 require('./SoftwareRenderer.js');
 require('./Projector.js');
 let THREE = require('./three.js');
+//let SoftwareRenderer = require('three-software-renderer');
 let Canvas = require('canvas');
 let fs = require('fs');
 
@@ -129,15 +130,32 @@ if(testMode) {
         });
     }
 } else {
-    let Twitter = require('./twitter/twitter.js');
-    let twitter = new Twitter(JSON.parse(fs.readFileSync('./creds.json')));
-    
+    //let Twitter = require('./twitter/twitter.js');
+    //let twitter = new Twitter(JSON.parse(fs.readFileSync('./creds.json')));
+    let Masto = require('mastodon');
+    let client = new Masto({
+        access_token: JSON.parse(fs.readFileSync('./creds.json')).mastodon_key,
+        timeout_ms: 20*1000,  // optional HTTP request timeout to apply to all requests.
+        api_url: 'https://wildflower.botsin.space/api/v1/', // optional, defaults to https://mastodon.social/api/v1/
+    });
+
     // high quality nlp
     let who = ['you see', "you've found", 'you come across'];
     let where = ['a sunny field', 'some rolling hills'];
     let what = ['with many flowers', 'full of color'];
     let why = ['and it makes you happy.', 'and it is peaceful.'];
-    
+   
+    let tootFile = (filename) => {
+        let buf = fs.createReadStream('./out/test.png');
+        let altText = [pickRandom(who), pickRandom(where), pickRandom(what), pickRandom(why)].join(' ');
+        client.post('media', { file: buf, description: altText }, (err, data, resp) => {
+            console.log(buf, data);
+            client.post('statuses', { status: " ", media_ids: [data.id] }, () => {
+                console.log('toot');
+            });
+        });
+    }
+ 
     let tweetCanvas = () => {
         return new Promise((resolve, reject) => {
             let buf = canvas.toBuffer();
@@ -178,6 +196,13 @@ if(testMode) {
         render();
         tweetCanvas().catch((err) => console.log(err));
     };
+
+    let doTooting = () => {
+        animate();
+        render();
+        saveCanvas('test').then((path) => setTimeout(() => tootFile(path), 1000))
+    };
     
-    doTweeting();
+    //doTweeting();
+    doTooting();
 }

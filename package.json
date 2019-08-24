@@ -9,7 +9,10 @@
     "noisejs": "^2.1.0",
     "request": "^2.75.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "mastodon": "^1.2.2",
+    "three-software-renderer": "^1.2.0"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
