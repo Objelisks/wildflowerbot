@@ -4,7 +4,7 @@
   "description": "",
   "main": "bot.js",
   "dependencies": {
-    "deep-extend": "^0.6.0",
+    "deep-extend": "^0.5.1",
     "canvas": "2",
     "noisejs": "^2.1.0",
     "request": "^2.75.0"
