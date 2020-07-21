@@ -2,14 +2,14 @@ require('./SoftwareRenderer.js');
 require('./Projector.js');
 let THREE = require('./three.js');
 //let SoftwareRenderer = require('three-software-renderer');
-let Canvas = require('canvas');
+let { createCanvas, Canvas } = require('canvas');
 let fs = require('fs');
 
 let width = 1024, height = 512;
 let scene, camera, renderer;
 let gradient;
 
-let canvas = new Canvas(width, height);
+let canvas = createCanvas(width, height);
 let ctx = canvas.getContext('2d');
 
 let terrain = require('./terrain.js');
